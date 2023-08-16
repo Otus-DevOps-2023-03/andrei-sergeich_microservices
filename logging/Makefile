@@ -34,7 +34,7 @@ build:
 	@printf "Сборка локальных образов ${NAME}...\n"
 	@${MACHINE_CHECKOUT} && \
 		export USER_NAME=${USER_NAME} && \
-		docker build -t ${USER_NAME}/fluentd:${DOCKER_TAG} ./fluentd && \
+		docker build -t ${USER_NAME}/fluentd ./fluentd && \
 		cd ../src/ui && bash docker_build.sh && \
 		cd ../post-py && bash docker_build.sh && \
 		cd ../comment && bash docker_build.sh
