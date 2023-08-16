@@ -6,6 +6,7 @@
 * С помощью ```yc cli``` создал инстанс в облаке
 * С помощью ```docker-machine``` инициализировал на инстансе докер хост систему
 * Собрал и запушил образы микросервисов в [DockerHub](https://hub.docker.com/repository/docker/cmero/prometheus/general)
+* Добавил образ ```fluentd```
 
 ---
 

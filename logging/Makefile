@@ -8,7 +8,7 @@ SSH_P_KEY_PATH = ${shell find ~/.ssh/ -type f -name id_ed25519.pub}
 SSH_KEY_PATH   = ${shell find ~/.ssh/ -type f -name id_ed25519}
 MACHINE_CHECKOUT = eval $$(docker-machine env ${VM_NAME})
 
-all: infra_create env_init build push
+all: infra_create env_init build
 
 infra_create:
 	@printf "Создание инфраструктуры в облаке...\n"
@@ -34,6 +34,7 @@ build:
 	@printf "Сборка локальных образов ${NAME}...\n"
 	@${MACHINE_CHECKOUT} && \
 		export USER_NAME=${USER_NAME} && \
+		docker build -t ${USER_NAME}/fluentd:${DOCKER_TAG} ./fluentd && \
 		cd ../src/ui && bash docker_build.sh && \
 		cd ../post-py && bash docker_build.sh && \
 		cd ../comment && bash docker_build.sh
