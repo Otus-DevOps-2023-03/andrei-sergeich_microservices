@@ -8,7 +8,7 @@ SSH_P_KEY_PATH = ${shell find ~/.ssh/ -type f -name id_ed25519.pub}
 SSH_KEY_PATH   = ${shell find ~/.ssh/ -type f -name id_ed25519}
 MACHINE_CHECKOUT = eval $$(docker-machine env ${VM_NAME})
 
-all: infra_create env_init build
+all: infra_create env_init build run
 
 infra_create:
 	@printf "Создание инфраструктуры в облаке...\n"
@@ -41,6 +41,7 @@ build:
 
 run:
 	@printf "Запуск сервисов ${NAME}...\n"
+	@${MACHINE_CHECKOUT} && docker-compose -f ../docker/docker-compose-logging.yml up -d
 	@${MACHINE_CHECKOUT} && docker-compose -f ../docker/docker-compose.yml up -d
 
 push:
@@ -53,6 +54,7 @@ push:
 
 clean:
 	@printf "Остановка и удаление сервисов ${NAME}...\n"
+	@${MACHINE_CHECKOUT} && docker-compose -f ../docker/docker-compose-logging.yml down
 	@${MACHINE_CHECKOUT} && docker-compose -f ../docker/docker-compose.yml down
 
 fclean:

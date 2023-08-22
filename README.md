@@ -7,6 +7,7 @@
 * С помощью ```docker-machine``` инициализировал на инстансе докер хост систему
 * Собрал и запушил образы микросервисов в [DockerHub](https://hub.docker.com/repository/docker/cmero/prometheus/general)
 * Добавил образ ```fluentd```
+* Развернул систему логирования на стеке ***EFK***
 
 ---
 
