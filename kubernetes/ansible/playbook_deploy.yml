@@ -1,0 +1,17 @@
+---
+# tasks file for deploy K8s & reddit app
+
+- name: Install Docker Engine
+  ansible.builtin.import_playbook: install_docker.yml
+  tags:
+    - docker
+
+- name: Install Kubernetes
+  ansible.builtin.import_playbook: install_k8s.yml
+  tags:
+    - k8s
+
+- name: Install Calico & reddit app
+  ansible.builtin.import_playbook: install_calico_and_reddit.yml
+  tags:
+    - reddit

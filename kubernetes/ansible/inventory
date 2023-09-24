@@ -1,0 +1,3 @@
+[k8s]
+master ansible_host=158.160.45.238
+worker ansible_host=158.160.39.179
