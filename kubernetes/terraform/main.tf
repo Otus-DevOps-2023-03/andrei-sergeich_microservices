@@ -6,9 +6,10 @@ provider "yandex" {
 }
 
 resource "yandex_compute_instance" "k8s_master" {
-  count = var.inst_count
-  name  = "k8s-master"
-  zone  = var.zone
+  count    = var.inst_count
+  name     = "k8s-master"
+  hostname = "k8s-master"
+  zone     = var.zone
 
   resources {
     cores         = 4
@@ -19,8 +20,8 @@ resource "yandex_compute_instance" "k8s_master" {
   boot_disk {
     initialize_params {
       image_id = var.image_id
-      type = "network-ssd"
-      size = 40
+      type     = "network-ssd"
+      size     = 40
     }
   }
 
@@ -41,9 +42,10 @@ resource "yandex_compute_instance" "k8s_master" {
 }
 
 resource "yandex_compute_instance" "k8s_worker" {
-  count = var.inst_count
-  name  = "k8s-worker"
-  zone  = var.zone
+  count    = var.inst_count
+  name     = "k8s-worker"
+  hostname = "k8s-worker"
+  zone     = var.zone
 
   resources {
     cores         = 4
@@ -54,8 +56,8 @@ resource "yandex_compute_instance" "k8s_worker" {
   boot_disk {
     initialize_params {
       image_id = var.image_id
-      type = "network-ssd"
-      size = 40
+      type     = "network-ssd"
+      size     = 40
     }
   }
 
