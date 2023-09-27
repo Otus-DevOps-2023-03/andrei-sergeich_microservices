@@ -1,5 +1,42 @@
 # OTUS HW microservices
 
+## ДЗ по модулю "Введение в Kubernetes #2"
+
+* Развернул локальное окружение для работы с ***Kubernetes*** (установил ***kubectl***, ***minikube***)
+* Изменил файлы с **Deployment-манифестами** приложений (***ui***, ***post***, ***comment***, ***mongo***)
+* Описал объекты ```Service``` для определения набора ```POD```-ов (Endpoints) и способ доступа к ним
+* Развернул аддон (***dashboard***), поднимающий ***UI*** для работы с ***Kubernetes***
+
+Для локальной сборки:
+
+* перейти в каталог **kubernetes**, выполнить
+
+    ``` bash
+    minikube start
+    kubectl get po -A
+    ```
+
+    > [!NOTE]\
+    > все поды должны быть в соостоянии **Running**
+
+    ``` bash
+    kubectl apply -f ./reddit
+    minikube addons enable metrics-server
+    minikube dashboard # контроль над оболочкой не вернет, выведет ссылку для UI
+    ```
+
+Для проверки:
+
+* выполнить
+
+    ``` bash
+    minikube service ui
+    ```
+
+* перейти по ссылке из колонки **URL**
+
+---
+
 ## ДЗ по модулю "Введение в Kubernetes #1"
 
 * Добавил файлы с **Deployment-манифестами** приложений (***ui***, ***post***, ***comment***, ***mongo***)
