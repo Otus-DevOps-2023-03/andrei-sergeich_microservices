@@ -6,12 +6,12 @@
 * Изменил файлы с **Deployment-манифестами** приложений (***ui***, ***post***, ***comment***, ***mongo***)
 * Описал объекты ```Service``` для определения набора ```POD```-ов (Endpoints) и способ доступа к ним
 * Развернул аддон (***dashboard***), поднимающий ***UI*** для работы с ***Kubernetes***
-* Описал объект ```Namespase``` (добавить ```-n dev``` к ```kubectl apply``` для запуска в **dev namespase**)
+* Описал объект ```Namespase``` (добавить ```-n dev``` для **dev namespase**)
 * Добавил информацию об окружении внутрь контейнера ```ui``
 
     > [!WARNING]\
     > Если, призапуске приложения и сервисов в двух **namespase** (```dev``` и ```default```),
-    возник конфликт портов у ui-service, нужно убирать из описания ```iu-service.yml``` значение NodePort
+    возник конфликт портов у ui-service, нужно убрать из описания ```iu-service.yml``` значение NodePort
     и применить манифест
 
 Для локальной сборки:
@@ -27,7 +27,19 @@
     > все поды должны быть в соостоянии **Running**
 
     ``` bash
-    kubectl apply -f ./reddit
+    kubectl apply -f ./reddit # создаст dev namespase, но само приложение запустит в default namespase
+    ```
+
+    или для запуска проекта в **dev namespase**:
+
+    ``` bash
+    kubectl apply -f ./reddit/dev-namespase.yml
+    kubectl apply -n dev -f ./reddit
+    ```
+
+    для запуска аддона ```dashboard```:
+
+    ``` bash
     minikube addons enable metrics-server
     minikube dashboard # контроль над оболочкой не вернет, выведет ссылку для UI
     ```
