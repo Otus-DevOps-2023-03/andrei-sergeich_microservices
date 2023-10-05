@@ -8,11 +8,14 @@
 * Развернул аддон (***dashboard***), поднимающий ***UI*** для работы с ***Kubernetes***
 * Описал объект ```Namespase``` (добавить ```-n dev``` для **dev namespase**)
 * Добавил информацию об окружении внутрь контейнера ```ui``
+* Развернул приложение на платформе ***Yandex Cloud Managed Service for kubernetes***
 
     > [!WARNING]\
     > Если, призапуске приложения и сервисов в двух **namespase** (```dev``` и ```default```),
     возник конфликт портов у ui-service, нужно убрать из описания ```iu-service.yml``` значение NodePort
     и применить манифест
+
+* Развернул кластер Managed Service for Kubernetes с помощью модуля ***Terraform***
 
 Для локальной сборки:
 
@@ -46,13 +49,38 @@
 
 Для проверки:
 
-* выполнить
+* выполнить:
 
     ``` bash
     minikube service ui
     ```
 
 * перейти по ссылке из колонки **URL**
+
+Для развертывания кластера ***K8s*** и приложения в облаке:
+
+* перейти в каталог **kubernetes/terraform-k8s**, выполнить
+
+    ``` bash
+    terraform init
+    make
+    ```
+
+Для проверки:
+
+* получить внешний IP-адрес любой ноды из кластера:
+
+    ``` bash
+    kubectl get nodes -o wide
+    ```
+
+* найти порт публикации сервиса ***ui***:
+
+    ``` bash
+    kubectl describe service ui -n dev | grep NodePort
+    ```
+
+* открыть в браузере <http://node-ip:NodePort>
 
 ---
 
