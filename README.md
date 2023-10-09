@@ -9,6 +9,7 @@
 * Описал объект ```Namespase``` (добавить ```-n dev``` для **dev namespase**)
 * Добавил информацию об окружении внутрь контейнера ```ui``
 * Развернул приложение на платформе ***Yandex Cloud Managed Service for kubernetes***
+* Создал YAML-манифесты для развертывания ***Kubernetes Dashboard***
 
     > [!WARNING]\
     > Если, призапуске приложения и сервисов в двух **namespase** (```dev``` и ```default```),
@@ -81,6 +82,13 @@
     ```
 
 * открыть в браузере <http://node-ip:NodePort>
+
+Для получения доступа к ***Kubernetes Dashboard***:
+
+* получить токен для входа, выполнив ```kubectl -n kubernetes-dashboard create token admin-user```
+* запустить ```kubectl proxy```, чтобы ***Dashboard UI*** стал доступен на ```localhost```
+* открыть в браузере <http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/> \
+и ввести полученный ранее токен на странице авторизации
 
 ---
 

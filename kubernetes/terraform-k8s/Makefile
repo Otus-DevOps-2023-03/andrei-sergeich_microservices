@@ -4,7 +4,7 @@ CLUSTER_D = ${shell kubectl config get-clusters | grep -v NAME}
 CONTEXT_D = ${shell kubectl config get-contexts | grep "*" | awk '{print $$2}'}
 USER_D    = $(shell kubectl config get-users | grep -v NAME)
 
-all: msfk_create msfk_attach namespase_create reddit_deploy
+all: msfk_create msfk_attach namespase_create reddit_deploy dashboard_deploy
 
 msfk_create:
 	@printf "Создание кластера Managed Service for Kubernetes...\n"
@@ -20,7 +20,22 @@ namespase_create:
 
 reddit_deploy:
 	@printf "\nРазвертывание приложения в ${CLUSTER}...\n"
-	@kubectl apply -f ../reddit/ -n dev
+	@kubectl apply -f ../reddit/dev-namespace.yml
+	@kubectl apply -f ../reddit/mongodb-service.yml -n dev
+	@kubectl apply -f ../reddit/post-mongodb-service.yml -n dev
+	@kubectl apply -f ../reddit/comment-mongodb-service.yml -n dev
+	@kubectl apply -f ../reddit/comment-service.yml -n dev
+	@kubectl apply -f ../reddit/post-service.yml -n dev
+	@kubectl apply -f ../reddit/ui-service.yml -n dev
+	@kubectl apply -f ../reddit/mongo-deployment.yml -n dev
+	@kubectl apply -f ../reddit/post-deployment.yml -n dev
+	@kubectl apply -f ../reddit/comment-deployment.yml -n dev
+	@kubectl apply -f ../reddit/ui-deployment.yml -n dev
+
+dashboard_deploy:
+	@printf "\nУстановка Dasboard UI...\n"
+	@kubectl apply -f ../reddit/dashboard-ui.yml
+	@kubectl apply -f ../reddit/dashboard-adminuser.yml
 
 fclean:
 	@printf "Полная очистка всех конфигураций ${NAME}...\n"
@@ -31,4 +46,4 @@ fclean:
 
 re:	fclean all
 
-.PHONY: all msfk_create msfk_attach namespase_create reddit_deploy fclean re
+.PHONY: all msfk_create msfk_attach namespase_create reddit_deploy dashboard_deploy fclean re
