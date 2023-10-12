@@ -1,0 +1,63 @@
+---
+- name: Install Calico & reddit app
+  hosts: all
+  tasks:
+
+    - name: A block for copy and apply manifests
+      when: inventory_hostname == "master"
+      block:
+
+        # - name: Download the Calico networking manifest
+        #   ansible.builtin.get_url:
+        #     url: https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
+        #     dest: /home/{{ ansible_user }}/calico.yaml
+        #     mode: '0440'
+
+        # - name: Update calico cidr
+        #   # become: true
+        #   ansible.builtin.replace:
+        #     path: /home/{{ ansible_user }}/custom-resources.yaml
+        #     regexp: '(^ *cidr:) ([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}$'
+        #     replace: '\1 10.244.0.0/16'
+        #   # delegate_to: localhost
+
+        # - name: Update calico cidr
+        #   # become: true
+        #   ansible.builtin.replace:
+        #     path: ../calico.yaml
+        #     regexp: '(^ *)# *(value:) "([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}"$'
+        #     after: '(^ *)# (- name: CALICO_IPV4POOL_CIDR)$'
+        #     # TODO: дописать задачу для корректной замены, сейчас не заменяет строку
+        #     replace: '\1  \2 "10.244.0.0/16"'
+        #   delegate_to: localhost
+
+        - name: Copy config file to user's directory
+          ansible.builtin.copy:
+            src: "{{ item }}"
+            dest: /home/{{ ansible_user }}/
+            owner: "{{ ansible_user }}"
+            group: "{{ ansible_user }}"
+            mode: "0644"
+          with_items:
+            - ../calico.yaml
+            - ../reddit/comment-deployment.yml
+            - ../reddit/mongo-deployment.yml
+            - ../reddit/post-deployment.yaml
+            - ../reddit/ui-deployment.yml
+
+        - name: Install Calico with Kubernetes API datastore
+          ansible.builtin.command: |
+            kubectl apply -f /home/{{ ansible_user }}/calico.yaml
+          register: calico_result
+          changed_when: calico_result.rc == 0
+
+        - name: Create reddit Deployment
+          ansible.builtin.command: |
+            kubectl apply -f /home/{{ ansible_user }}/{{ item }}
+          with_items:
+            - mongo-deployment.yml
+            - comment-deployment.yml
+            - post-deployment.yaml
+            - ui-deployment.yml
+          register: reddit_result
+          changed_when: reddit_result.rc == 0

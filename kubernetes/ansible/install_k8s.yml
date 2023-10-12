@@ -1,0 +1,175 @@
+---
+- name: Install Kubernetes
+  hosts: all
+  tasks:
+
+    - name: Add an apt signing key for Kubernetes
+      become: true
+      ansible.builtin.apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Adding apt repository for Kubernetes
+      become: true
+      ansible.builtin.apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes.list
+
+    - name: Install Kubernetes binaries
+      become: true
+      ansible.builtin.apt:
+        update_cache: true
+        pkg:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+
+    - name: Restart kubelet
+      become: true
+      ansible.builtin.service:
+        name: kubelet
+        daemon_reload: true
+        state: restarted
+
+    - name: Update containerd file
+      become: true
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^disabled_plugins'
+        line: enabled_plugins = ["cri"]
+        state: present
+
+    - name: Restart containerd service
+      become: true
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+
+    - name: A block for master initing
+      when: inventory_hostname == "master"
+      block:
+
+        - name: Initialize the Kubernetes cluster using kubeadm
+          become: true
+          ansible.builtin.command: |
+            kubeadm init --apiserver-cert-extra-sans={{ ansible_host }}
+            --apiserver-advertise-address=0.0.0.0
+            --control-plane-endpoint={{ ansible_host }}
+            --pod-network-cidr=10.244.0.0/16
+          register: kubeadmoutput
+          changed_when: kubeadmoutput.rc == 0
+
+        - name: Create directory for config
+          ansible.builtin.file:
+            path: /home/{{ ansible_user }}/.kube
+            state: directory
+            owner: "{{ ansible_user }}"
+            group: "{{ ansible_user }}"
+            mode: "0755"
+
+        - name: Copy config file to user's directory
+          become: true
+          ansible.builtin.copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /home/{{ ansible_user }}/.kube/config
+            remote_src: true
+            owner: "{{ ansible_user }}"
+            group: "{{ ansible_user }}"
+            mode: "0644"
+
+        - name: Generate join command
+          ansible.builtin.command: |
+            kubeadm token create --print-join-command
+          register: join_command
+          changed_when: join_command.rc == 0
+
+        - name: Copy join command to local file
+          ansible.builtin.copy:
+            content: "{{ join_command.stdout_lines[0] }}"
+            dest: "./join-command"
+            mode: "0777"
+          delegate_to: localhost
+
+    - name: A block for worker joining
+      when: inventory_hostname == "worker"
+      block:
+
+        - name: Copy the join command to server location
+          ansible.builtin.copy:
+            src: join-command
+            dest: /tmp/join-command.sh
+            mode: "0777"
+
+        - name: Join the node to cluster
+          become: true
+          ansible.builtin.command: |
+            sh /tmp/join-command.sh
+          register: join_result
+          changed_when: join_result.rc == 0
+
+        - name: Delete the join command from localhost
+          ansible.builtin.file:
+            path: ./join-command
+            state: absent
+          delegate_to: localhost
+
+    - name: A block for copy and apply manifests
+      when: inventory_hostname == "master"
+      block:
+
+        # - name: Download the Calico networking manifest
+        #   ansible.builtin.get_url:
+        #     url: https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
+        #     dest: /home/{{ ansible_user }}/calico.yaml
+        #     mode: '0440'
+
+        # - name: Update calico cidr
+        #   # become: true
+        #   ansible.builtin.replace:
+        #     path: /home/{{ ansible_user }}/custom-resources.yaml
+        #     regexp: '(^ *cidr:) ([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}$'
+        #     replace: '\1 10.244.0.0/16'
+        #   # delegate_to: localhost
+
+        # - name: Update calico cidr
+        #   # become: true
+        #   ansible.builtin.replace:
+        #     path: ../calico.yaml
+        #     regexp: '(^ *)# *(value:) "([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}"$'
+        #     after: '(^ *)# (- name: CALICO_IPV4POOL_CIDR)$'
+        #     # TODO: дописать задачу для корректной замены, сейчас не заменяет строку
+        #     replace: '\1  \2 "10.244.0.0/16"'
+        #   delegate_to: localhost
+
+        - name: Copy config file to user's directory
+          ansible.builtin.copy:
+            src: "{{ item }}"
+            dest: /home/{{ ansible_user }}/
+            owner: "{{ ansible_user }}"
+            group: "{{ ansible_user }}"
+            mode: "0644"
+          with_items:
+            - ../calico.yaml
+            - ../reddit/comment-deployment.yml
+            - ../reddit/mongo-deployment.yml
+            - ../reddit/post-deployment.yaml
+            - ../reddit/ui-deployment.yml
+
+        - name: Install Calico with Kubernetes API datastore
+          ansible.builtin.command: |
+            kubectl apply -f /home/{{ ansible_user }}/calico.yaml
+          register: calico_result
+          changed_when: calico_result.rc == 0
+
+        - name: Create reddit Deployment
+          ansible.builtin.command: |
+            kubectl apply -f /home/{{ ansible_user }}/{{ item }}
+          with_items:
+            - mongo-deployment.yml
+            - comment-deployment.yml
+            - post-deployment.yaml
+            - ui-deployment.yml
+          register: reddit_result
+          changed_when: reddit_result.rc == 0
