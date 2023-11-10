@@ -43,6 +43,7 @@ fclean:
 	@kubectl config delete-cluster ${CLUSTER_D}
 	@kubectl config delete-context ${CONTEXT_D}
 	@kubectl config delete-user ${USER_D}
+	@kubectl config unset current-context
 
 re:	fclean all
 
