@@ -22,9 +22,11 @@ resource "yandex_kubernetes_cluster" "k8s-zonal-cluster" {
   service_account_id      = yandex_iam_service_account.k8s-account.id
   node_service_account_id = yandex_iam_service_account.k8s-account.id
   depends_on = [
+    yandex_resourcemanager_folder_iam_member.editor,
     yandex_resourcemanager_folder_iam_member.k8s-clusters-agent,
     yandex_resourcemanager_folder_iam_member.vpc-public-admin,
-    yandex_resourcemanager_folder_iam_member.images-puller
+    yandex_resourcemanager_folder_iam_member.images-puller,
+    yandex_resourcemanager_folder_iam_member.load-balancer-admin
   ]
 
   release_channel         = "RAPID"
