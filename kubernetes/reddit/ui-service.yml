@@ -9,10 +9,10 @@ metadata:
 spec:
   type: NodePort # Главное отличие - тип сервиса NodePort
   ports:
-  - port: 9292
+  - port: 9292 # Порт, который будет открыт на балансировщике
     protocol: TCP
-    targetPort: 9292
-    nodePort: 32092
+    targetPort: 9292 # Порт POD-а
+    # nodePort: 32092 # Также на ноде будет открыт порт, но нам он не нужен и его можно даже убрать
   selector:
     app: reddit
     component: ui
