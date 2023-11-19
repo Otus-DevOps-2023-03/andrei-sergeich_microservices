@@ -1,5 +1,39 @@
 # OTUS HW microservices
 
+## ДЗ по модулю "Ingress-контроллеры и сервисы в Kubernetes"
+
+* Развернул ```Ingress``` в **namespase** ```dev```
+* Сгенерировал самоподписанный сертификат и ключ, поместил их в кластер ***K8s***
+    > [!NOTE]\
+    > команда для выпуска самоподписанного сертификата (CN = ```ip ingress```):
+
+    ```bash
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=$(kubectl get ingress -n dev | grep ui | awk '{print$4}')"
+    ```
+
+* Настроил ```Ingress``` на прием только ```HTTPS``` траффика
+* Описал создаваемый объект ```Secret``` в виде ***Kubernetes***-манифеста.
+
+Для сборки:
+
+* перейти в каталог **kubernetes/terraform-k8s**, выполнить
+
+    ``` bash
+    make
+    ```
+
+Для проверки:
+
+* получить внешний IP-адрес ```Ingress```:
+
+    ``` bash
+    kubectl get igress -n dev
+    ```
+
+* открыть в браузере <http://ingress-ip>
+
+---
+
 ## ДЗ по модулю "Введение в Kubernetes #2"
 
 * Развернул локальное окружение для работы с ***Kubernetes*** (установил ***kubectl***, ***minikube***)

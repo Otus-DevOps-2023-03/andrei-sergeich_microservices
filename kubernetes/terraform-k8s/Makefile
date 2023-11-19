@@ -22,7 +22,7 @@ msfk_attach:
 ingress_controller_deploy:
 	@echo
 	@echo "$$(tput bold)Установка Ingress controller...$$(tput sgr0)"
-	@kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.3/deploy/static/provider/cloud/deploy.yaml
+	@kubectl apply -f ../reddit/ingress-nginx.yml
 
 reddit_deploy:
 	@echo
@@ -38,6 +38,8 @@ reddit_deploy:
 	@kubectl apply -f ../reddit/post-mongodb-service.yml -n dev
 	@kubectl apply -f ../reddit/ui-deployment.yml -n dev
 	@kubectl apply -f ../reddit/ui-service.yml -n dev
+	@kubectl apply -f ../reddit/ui-secret.yml -n dev
+#	@kubectl create secret tls ui-ingress --key ../reddit/tls.key --cert ../reddit/tls.crt -n dev
 
 dashboard_deploy:
 	@echo
@@ -59,6 +61,7 @@ clean:
 	@echo
 	@echo "$$(tput bold)Удаление приложения, Ingress controller, контекста...$$(tput sgr0)"
 	@kubectl delete -f ../reddit/ui-ingress.yml -n dev
+	@kubectl delete -f ../reddit/ui-secret.yml -n dev
 	@kubectl delete -f ../reddit/ui-service.yml -n dev
 	@kubectl delete -f ../reddit/ui-deployment.yml -n dev
 	@kubectl delete -f ../reddit/post-mongodb-service.yml -n dev
@@ -70,7 +73,7 @@ clean:
 	@kubectl delete -f ../reddit/mongodb-service.yml -n dev
 	@kubectl delete -f ../reddit/mongo-deployment.yml -n dev
 	@kubectl delete -f ../reddit/dev-namespace.yml
-	@kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.3/deploy/static/provider/cloud/deploy.yaml
+	@kubectl delete -f ../reddit/ingress-nginx.yml
 	@kubectl config delete-cluster ${CLUSTER_D}
 	@kubectl config delete-context ${CONTEXT_D}
 	@kubectl config delete-user ${USER_D}
