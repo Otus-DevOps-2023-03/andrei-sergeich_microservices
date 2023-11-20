@@ -39,7 +39,7 @@ reddit_deploy:
 	@kubectl apply -f ../reddit/ui-deployment.yml -n dev
 	@kubectl apply -f ../reddit/ui-service.yml -n dev
 	@kubectl apply -f ../reddit/ui-secret.yml -n dev
-#	@kubectl create secret tls ui-ingress --key ../reddit/tls.key --cert ../reddit/tls.crt -n dev
+	@kubectl apply -f ../reddit/mongo-network-policy.yml -n dev
 
 dashboard_deploy:
 	@echo
@@ -60,6 +60,7 @@ endif
 clean:
 	@echo
 	@echo "$$(tput bold)Удаление приложения, Ingress controller, контекста...$$(tput sgr0)"
+	@kubectl delete -f ../reddit/mongo-network-policy.yml -n dev
 	@kubectl delete -f ../reddit/ui-ingress.yml -n dev
 	@kubectl delete -f ../reddit/ui-secret.yml -n dev
 	@kubectl delete -f ../reddit/ui-service.yml -n dev
