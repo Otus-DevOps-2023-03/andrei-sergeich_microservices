@@ -10,8 +10,8 @@ DISK_NAME_CHECK = ${shell yc compute disk list --format json | jq -r '.[] | sele
 disk_create:
 	@echo
 	@echo "$$(tput bold)Создание Compute Cloud Disk...$$(tput sgr0)"
-ifeq '${DISK_NAME_CHECK}' '${DISK_NAME}'
-	# @yc compute disk create --name ${DISK_NAME} --size 4 --description "disk for ${DISK_NAME}"
+ifneq '${DISK_NAME_CHECK}' '${DISK_NAME}'
+	@yc compute disk create --name ${DISK_NAME} --size 4 --description "disk for ${DISK_NAME}"
 	@sleep 5
 	@sed -i \
 		'/volumeHandle/s/:.*$\/\: ${shell yc compute disk list --format json | jq -r '.[] | select (.name == "${DISK_NAME}") | .id'}/' \
@@ -64,7 +64,7 @@ INGR_CONT_STATE = $(shell kubectl get po -n ingress-nginx | grep controller | aw
 ingress_deploy:
 	@echo
 	@echo "$$(tput bold)Создание Ingress...$$(tput sgr0)"
-	@sleep 5
+	@sleep 10
 ifeq '${INGR_CONT_STATE}' '1'
 	@kubectl apply -f ../reddit/ui-ingress.yml -n dev
 else
