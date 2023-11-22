@@ -20,4 +20,4 @@ spec:
             port:
               number: 9292
   tls:
-  - secretName: ui-secret # Подключаем наш сертификат
+  - secretName: ui-ingress # Подключаем наш сертификат

@@ -27,9 +27,11 @@ spec:
       - image: mongo:5.0
         name: mongo
         volumeMounts: # Точка монтирования в контейнере (не в POD-е)
+        # - name: mongo-gce-pd-storage # тесты отуса хотят видеть это имя
         - name: mongo-persistent-storage
           mountPath: /data/db
       volumes: # Ассоциированные с POD-ом Volume-ы
+      # - name: mongo-gce-pd-storage # тесты отуса хотят видеть это имя
       - name: mongo-persistent-storage
         persistentVolumeClaim:
           claimName: mongo-pvc
