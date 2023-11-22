@@ -1,5 +1,6 @@
 NAME = K8s-HW
 
+# TODO: переместить в каталог teraaform, переписать по "make -C $(TF{-k8s}_DIR)", описать изменения в README.md
 
 all: infra_create k8s_create
 
@@ -8,7 +9,7 @@ infra_create:
 	@cd ./terraform && terraform apply -auto-approve
 
 k8s_create:
-	@printf "Ожидание поднятия инствнсов для ${NAME}...\n"
+	@printf "Ожидание поднятия инстансов для ${NAME}...\n"
 	@sleep 20
 	@printf "Создание кластера ${NAME}...\n"
 	@cd ./ansible && ansible-playbook playbook_deploy.yml

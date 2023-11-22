@@ -1,0 +1,23 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ui
+  annotations:
+    kubernetes.io/ingress.allow-http: "false" # Отключаем проброс HTTP
+    # nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx # обязательное поле, используется вместо устаревшей аннотации "kubernetes.io/ingress.class"
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ui
+            port:
+              number: 9292
+  tls:
+  - secretName: ui-ingress # Подключаем наш сертификат
